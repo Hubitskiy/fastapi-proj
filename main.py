@@ -1,13 +1,16 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 
 from typing import List
+import json
 
 from enum import Enum
 from pydantic import BaseModel
 
 
 class FilmsAddPayload(BaseModel):
-    films: List[str]
+    filmName: str
+    description: str
+    createdDate: str
 
 
 class FilmsGenre(str, Enum):
@@ -19,38 +22,26 @@ class FilmsGenre(str, Enum):
 app = FastAPI()
 
 
-list_of_films_by_genre = {
-    "detective": [
-        "Seven",
-        "Sleven Lucky number",
-        "Sherlock Holmes",
-        "Prestige",
-        "Death Note"
-    ],
-    "criminal": [
-        "Pulp fiction",
-        "God Father",
-        "Once Upon Timer in America",
-        "Joker",
-        "Professional"
-    ],
-    "action": [
-        "Lethal Weapon",
-        "Die Hard",
-        "Inglourious Basterds",
-        "007",
-        "Batman"
-    ]
-}
-
-
 @app.get("/films/{genre}")
-def get_list_films_by_genre(genre: FilmsGenre, skip: int = 0, limit: int = 25):
-    return {
-        "films": list_of_films_by_genre.get(genre.name)[skip: skip + limit]
-    }
+def get_list_films_by_genre(
+        genre: FilmsGenre = Path(..., description="Genre Of Films The List You Want To Get"),
+        offset: int = Query(0),
+        limit: int = Query(25)
+        ):
+
+    with open("films.json") as file:
+        data = json.load(file)
+
+        return {
+            "films": data.get(genre.name)[offset: offset + limit]
+        }
 
 
 @app.post("/films/{genre}")
 def add_film_to_store(genre: FilmsGenre, filmspayload: FilmsAddPayload):
-    return list_of_films_by_genre[genre] + filmspayload.films
+    with open("films.json") as file:
+        data = json.load(file)
+        films_by_genre = data[genre.name]
+        films_by_genre.append(filmspayload)
+
+        return films_by_genre

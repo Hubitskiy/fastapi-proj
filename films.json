@@ -1,0 +1,83 @@
+{
+    "detective": [
+        {
+            "filmName": "Seven",
+            "description": "Criminal Story about humans siners",
+            "createdDate": "2000-08-12"
+        },
+        {
+            "filmName": "Sleven Lucky number",
+            "description": "Criminal story about revenge",
+            "createdDate": "2000-06-05"
+        },
+        {
+            "filmName": "Sherlock Holmes",
+            "description": "Story about best detective in the world",
+            "createdDate": "1980-10-25"
+        },
+        {
+            "filmName": "Prestige",
+            "description": "Story about wizards",
+            "createdDate": "2005-01-01"
+        },
+        {
+            "filmName": "Death Note",
+            "description": "Story about confrontation",
+            "createdDate": "2003-08-15"
+        }
+    ],
+    "criminal": [
+        {
+            "filmName": "Pulp fiction",
+            "description": "Criminals Stories from LA",
+            "createdDate": "1994-04-23"
+        },
+        {
+            "filmName": "God Father",
+            "description": "Story about one italian criminal family",
+            "createdDate": "1975-11-11"
+        },
+        {
+            "filmName": "Once Upon Timer in America",
+            "description": "Story about one italian criminal family",
+            "createdDate": "1975-11-11"
+        },
+        {
+            "filmName": "Joker",
+            "description": "A story about a man who laughs",
+            "createdDate": "2019-11-12"
+        },
+        {
+            "filmName": "Professional",
+            "description": "A story about killer with brave heart",
+            "createdDate": "2019-11-12"
+        }
+    ],
+    "action": [
+        {
+            "filmName": "Lethal Weapon",
+            "description": "A story about two LA Cops",
+            "createdDate": "1990-07-11"
+        },
+        {
+            "filmName": "Die Hard",
+            "description": "A story about man who save the wife",
+            "createdDate": "1985-12-12"
+        },
+        {
+            "filmName": "Inglourious Basterds",
+            "description": "A story about busterds",
+            "createdDate": "2004-03-27"
+        },
+        {
+            "filmName": "007",
+            "description": "A story about hide agent",
+            "createdDate": "2010-08-04"
+        },
+        {
+            "filmName": "Batman",
+            "description": "A story about superhero",
+            "createdDate": "2005-02-17"
+        }
+    ]
+}

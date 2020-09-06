@@ -1,12 +1,14 @@
 from fastapi import (
     FastAPI,
     Query,
-    Path
+    Path,
+    status
 )
 
 import json
+from datetime import date
 
-from typing import List
+from typing import List, Dict
 
 from enum import Enum
 from pydantic import BaseModel, Field
@@ -15,7 +17,7 @@ from pydantic import BaseModel, Field
 class FilmsAddPayload(BaseModel):
     filmName: str = Field(..., max_length=50, example="James Bond")
     description: str = Field(None, max_length=300, example="Film About Spy")
-    createdDate: str = Field(None, example="2000-12-12")
+    createdDate: date = Field(None, example="2000-12-12")
     actors: List[str] = Field([], example=["DeNiro, LuiVeton"])
 
 
@@ -28,7 +30,7 @@ class FilmsGenre(str, Enum):
 app = FastAPI()
 
 
-@app.get("/films/{genre}")
+@app.get("/films/{genre}", status_code=status.HTTP_200_OK, response_model=Dict[str, List[FilmsAddPayload]])
 def get_list_films_by_genre(
         genre: FilmsGenre = Path(..., description="Genre Of Films The List You Want To Get"),
         offset: int = Query(0),
@@ -43,10 +45,10 @@ def get_list_films_by_genre(
         }
 
 
-@app.post("/films/{genre}")
+@app.post("/films/{genre}", status_code=status.HTTP_201_CREATED, response_model=Dict[str, List[FilmsAddPayload]])
 def add_film_to_store(
         genre: FilmsGenre,
-        films_payload: FilmsAddPayload
+        films_payload: FilmsAddPayload,
         ):
 
     with open("films.json", "r") as file:

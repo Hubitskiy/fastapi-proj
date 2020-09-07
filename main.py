@@ -2,7 +2,8 @@ from fastapi import (
     FastAPI,
     Query,
     Path,
-    status
+    status,
+    HTTPException
 )
 
 import json
@@ -15,10 +16,10 @@ from pydantic import BaseModel, Field
 
 
 class FilmsAddPayload(BaseModel):
-    filmName: str = Field(..., max_length=50, example="James Bond")
-    description: str = Field(None, max_length=300, example="Film About Spy")
-    createdDate: date = Field(None, example="2000-12-12")
-    actors: List[str] = Field([], example=["DeNiro, LuiVeton"])
+    filmName: str = Field(..., max_length=50)
+    description: str = Field(None, max_length=300)
+    createdDate: date = Field(None)
+    actors: List[str] = Field([])
 
 
 class FilmsGenre(str, Enum):
@@ -30,7 +31,7 @@ class FilmsGenre(str, Enum):
 app = FastAPI()
 
 
-@app.get("/films/{genre}", status_code=status.HTTP_200_OK, response_model=Dict[str, List[FilmsAddPayload]])
+@app.get("/films/{genre}", status_code=status.HTTP_200_OK, response_model=List[FilmsAddPayload])
 def get_list_films_by_genre(
         genre: FilmsGenre = Path(..., description="Genre Of Films The List You Want To Get"),
         offset: int = Query(0),
@@ -40,9 +41,25 @@ def get_list_films_by_genre(
     with open("films.json") as file:
         data = json.load(file)
 
-        return {
-            "films": data.get(genre.name)[offset: offset + limit]
-        }
+        return data.get(genre.name)[offset: offset + limit]
+
+
+@app.get("/films/by-name/{film_name}", status_code=status.HTTP_200_OK, response_model=FilmsAddPayload)
+def get_film_by_name(
+        film_name: str  = Path(...)
+    ):
+    with open("films.json") as file:
+        data = json.load(file)
+
+        list_of_films = []
+        for lists in data.values():
+            list_of_films += lists
+
+        for film in list_of_films:
+            if film["filmName"] == film_name:
+                return film
+
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Film Not Found")
 
 
 @app.post("/films/{genre}", status_code=status.HTTP_201_CREATED, response_model=Dict[str, List[FilmsAddPayload]])

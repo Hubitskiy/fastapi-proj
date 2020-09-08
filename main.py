@@ -21,6 +21,16 @@ class FilmsAddPayload(BaseModel):
     createdDate: date = Field(None)
     actors: List[str] = Field([])
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "filmName": "7 Times of Spring",
+                "description": "Film About Soviet Spy In Nazi Germany",
+                "createdDate": "1980-09-23",
+                "actors": ["Tichonov", "Bronevoy"]
+            }
+        }
+
 
 class FilmsGenre(str, Enum):
     detective = "detective"
@@ -46,8 +56,9 @@ def get_list_films_by_genre(
 
 @app.get("/films/by-name/{film_name}", status_code=status.HTTP_200_OK, response_model=FilmsAddPayload)
 def get_film_by_name(
-        film_name: str  = Path(...)
-    ):
+        film_name: str = Path(...)
+        ):
+
     with open("films.json") as file:
         data = json.load(file)
 
@@ -56,10 +67,10 @@ def get_film_by_name(
             list_of_films += lists
 
         for film in list_of_films:
-            if film["filmName"] == film_name:
+            if film_name in film.values():
                 return film
 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Film Not Found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Film {film_name} Not Found")
 
 
 @app.post("/films/{genre}", status_code=status.HTTP_201_CREATED, response_model=Dict[str, List[FilmsAddPayload]])

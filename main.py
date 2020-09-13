@@ -2,8 +2,12 @@ from fastapi import (
     FastAPI,
     Query,
     Path,
+    Request,
     status,
-    HTTPException
+    exceptions,
+    HTTPException,
+    responses,
+    encoders,
 )
 
 import json
@@ -41,7 +45,21 @@ class FilmsGenre(str, Enum):
 app = FastAPI()
 
 
-@app.get("/films/{genre}", status_code=status.HTTP_200_OK, response_model=List[FilmsAddPayload])
+@app.exception_handler(exceptions.RequestValidationError)
+def validation_exception(request: Request, exc: exceptions.RequestValidationError):
+    return responses.JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=encoders.jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
+    )
+
+
+@app.get(
+    "/films/{genre}",
+    status_code=status.HTTP_200_OK,
+    response_model=List[FilmsAddPayload],
+    tags=["films"],
+    summary="Get List Films By Genre"
+    )
 def get_list_films_by_genre(
         genre: FilmsGenre = Path(..., description="Genre Of Films The List You Want To Get"),
         offset: int = Query(0),
@@ -54,7 +72,13 @@ def get_list_films_by_genre(
         return data.get(genre.name)[offset: offset + limit]
 
 
-@app.get("/films/by-name/{film_name}", status_code=status.HTTP_200_OK, response_model=FilmsAddPayload)
+@app.get(
+    "/films/by-name/{film_name}",
+    status_code=status.HTTP_200_OK,
+    response_model=FilmsAddPayload,
+    tags=["films"],
+    summary="Get List Films By Name"
+    )
 def get_film_by_name(
         film_name: str = Path(...)
         ):
@@ -73,11 +97,24 @@ def get_film_by_name(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Film {film_name} Not Found")
 
 
-@app.post("/films/{genre}", status_code=status.HTTP_201_CREATED, response_model=Dict[str, List[FilmsAddPayload]])
+@app.post(
+    "/films/{genre}",
+    status_code=status.HTTP_201_CREATED,
+    response_model=Dict[str, List[FilmsAddPayload]],
+    tags=["films"],
+    summary="Add Film By List Film",
+    response_description="Return List Films In This Genre"
+    )
 def add_film_to_store(
         genre: FilmsGenre,
         films_payload: FilmsAddPayload,
         ):
+    """
+    - **filmName**: Name are creating film
+    - **description**: Description are creating film
+    - **createdDate**: Date when film was created
+    - **actors**: List actors participating in film
+    """
 
     with open("films.json", "r") as file:
         data = json.load(file)

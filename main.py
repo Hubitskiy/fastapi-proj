@@ -11,9 +11,9 @@ from fastapi import (
 )
 
 import json
-from datetime import date
 
 from typing import List, Dict
+from datetime import date
 
 from enum import Enum
 from pydantic import BaseModel, Field
@@ -118,6 +118,31 @@ def add_film_to_store(
 
     with open("films.json", "r") as file:
         data = json.load(file)
-        data[genre.name].append(films_payload)
+        encoded_payload = encoders.jsonable_encoder(films_payload)
+        data[genre.name].append(encoded_payload)
 
         return data
+
+
+@app.patch(
+    "/films/{film_name}",
+    status_code=status.HTTP_200_OK,
+    response_model=FilmsAddPayload
+)
+def partial_update_film(
+        film_name: str,
+        films_payload: FilmsAddPayload,
+        ):
+    with open("films.json") as file:
+        data = json.load(file)
+
+        list_of_films = []
+        for lists in data.values():
+            list_of_films += lists
+
+        for film in list_of_films:
+            if film_name in film.values():
+                updated_data = films_payload.dict(exclude_unset=True)
+                return updated_data
+
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Film {film_name} Not Found")

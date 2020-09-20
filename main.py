@@ -124,12 +124,14 @@ def add_film_to_store(
         return data
 
 
-@app.patch(
+@app.put(
     "/films/{film_name}",
     status_code=status.HTTP_200_OK,
-    response_model=FilmsAddPayload
+    response_model=Dict[str, List[FilmsAddPayload]],
+    tags=["films"],
+    description="Use this endpoint for update films"
 )
-def partial_update_film(
+def update_film_by_name(
         film_name: str,
         films_payload: FilmsAddPayload,
         ):
@@ -142,7 +144,8 @@ def partial_update_film(
 
         for film in list_of_films:
             if film_name in film.values():
-                updated_data = films_payload.dict(exclude_unset=True)
-                return updated_data
+                film.update(films_payload)
+                encoded_data = encoders.jsonable_encoder(data)
+                return encoded_data
 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Film {film_name} Not Found")
